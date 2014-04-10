@@ -1,0 +1,60 @@
+Copyright (C) 2014 Jeffrey M Brown
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with This program. If not, see <http://www.gnu.org/licenses/>.
+
+
+
+The Parameters class provides a simple way to manage input files
+commonly used in simulations. Parameter files contain key=value pairs
+that can be grouped under sections, denoted by square braces
+[section]. An example input file would contain:
+
+# this is a comment
+[time]
+N = 1024
+dt = 0.1
+
+[space]
+N = 256
+dx = 1e-6
+
+[output]
+filename = mydata.dat
+
+
+These pairs will be stored in a map with each section name prepended
+to the keys listed below it. The file above is stored as:
+
+time/N   : 1024
+time/dt  : 0.1
+space/N  : 256
+space/dx : 1e-6
+output/filename : mydata.dat
+
+
+To read an input file, create a parameters object:
+
+  Parameters params(filename);
+
+
+To use a value associated with a particular key, first create a
+variable in your program and then call the get member function:
+
+  double dt;                // dt = 0.0
+  params.get("time/dt", dt) // dt = 0.1
+
+
+Parameters uses templates and stringstreams in order to decipher the
+type. In order to use Parameters in your program, just include the
+header file: parameters.h

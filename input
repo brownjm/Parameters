@@ -1,0 +1,13 @@
+# this is a comment
+[time]
+N = 1024
+dt = 0.1
+eps = 1e-8
+
+[space]
+N = 256
+dx = 1.3e-6
+
+[output]
+filename = mydata.dat
+newinput = input2
