@@ -61,6 +61,24 @@ public:
   // get all the entries within a section
   std::map<std::string, std::string> getSectionMap(const std::string& sectionName);
 
+  // iterator
+  class iterator {
+  public:
+    iterator(std::map<std::string, std::string>::iterator it)
+      :current(it) {}
+    iterator& operator++() {++current; return *this;}
+    iterator& operator--() {--current; return *this;}
+    std::map<std::string, std::string>::iterator& operator->() {return current;}
+    std::map<std::string, std::string>::value_type& operator*() {return *current;}
+    bool operator==(const iterator& other) const {return current == other.current;}
+    bool operator!=(const iterator& other) const {return current != other.current;}
+
+  private:
+    std::map<std::string, std::string>::iterator current;
+  };
+  iterator begin() {return iterator(parameters.begin());}
+  iterator end() {return iterator(parameters.end());}
+
 
 private:
   std::map<std::string, std::string> parameters;
