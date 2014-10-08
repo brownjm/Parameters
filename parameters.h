@@ -77,7 +77,7 @@ public:
     std::map<std::string, std::string>::iterator current;
   };
   iterator begin() {return iterator(parameters.begin());}
-  iterator end() {return iterator(parameters.end());}
+  iterator end()   {return iterator(parameters.end());}
 
 
 private:
@@ -103,39 +103,45 @@ Parameters::~Parameters() {}
 void Parameters::load(const std::string& filename) {
   // open file
   std::ifstream ifs(filename.c_str());
-  if(!ifs) throw ParametersFileError("Cannot open input file: " + filename);
+  if (!ifs) throw ParametersFileError("Cannot open input file: " + filename);
   
   // read lines from file
   std::string line;
   std::vector<std::string> text;
-  while(!ifs.eof()) {
+  while (!ifs.eof()) {
     getline(ifs, line);
 
     // remove comments
     std::size_t found = line.find('#');
-    if (found != std::string::npos) line = line.substr(0, found);
+    if (found != std::string::npos) {
+      line = line.substr(0, found);
+    }
+
+    // remove leading and trailing whitespace
     line = trimWhitespace(line);
-    if(line.length() > 0) text.push_back(line);
+    if (line.length() > 0) {
+      text.push_back(line); // add remaining line
+    }
   }
 
   // iterate through text and build the dictionary
   std::string sectionName, key, value, fullPathKey;
   std::vector<std::string>::const_iterator text_iter;
-  for(text_iter=text.begin(); text_iter!=text.end(); text_iter++) {
+  for (text_iter=text.begin(); text_iter!=text.end(); text_iter++) {
     line = *text_iter; // current line of text
     // check if line is a section header
-    if(*line.begin() == '[' && *line.rbegin() == ']') {
+    if (*line.begin() == '[' && *line.rbegin() == ']') {
       sectionName = trimWhitespace(line.substr(1, line.length()-2));
     }
     else { // line might contain: key = value
       int i = line.find("=");
-      if(i == -1) // failed to find '='
+      if (i == -1) // failed to find '='
 	throw ParametersFileError("Under section '"+sectionName+"', malformed expression line: '"+line+"'\n");
 
       // split expression by '=' into key and value
       key = trimWhitespace(line.substr(0, i));
       value = trimWhitespace(line.substr(i+1));
-      if(!key.length() > 0 || !value.length() > 0) // if key or value contains only whitespace
+      if (!key.length() > 0 || !value.length() > 0) // if key or value contains only whitespace
 	throw ParametersFileError("Under section '"+sectionName+"', missing key or value: '"+key+"="+value+"'\n");
 
       // store keys as 'section/key'
@@ -149,12 +155,12 @@ void Parameters::load(const std::string& filename) {
 void Parameters::save(const std::string& filename) {
   // open file
   std::ofstream ofs(filename.c_str());
-  if(!ofs) throw ParametersFileError("Cannot open output file: " + filename);
+  if (!ofs) throw ParametersFileError("Cannot open output file: " + filename);
   
   // iterate through the dictionary
   std::string fullPathKey, sectionName, key, value, currentSectionName;
   std::map<std::string, std::string>::const_iterator map_iter;
-  for(map_iter=parameters.begin(); map_iter!=parameters.end(); map_iter++) {
+  for (map_iter=parameters.begin(); map_iter!=parameters.end(); map_iter++) {
     fullPathKey = map_iter->first;
     value = map_iter->second;
     
@@ -164,7 +170,7 @@ void Parameters::save(const std::string& filename) {
     key = fullPathKey.substr(i+1);
 
     // check if we need to start a new section
-    if(currentSectionName == sectionName) { // same section still
+    if (currentSectionName == sectionName) { // same section still
       ofs << key << " = " << value << "\n";
     }
     else { // create a new section
@@ -180,7 +186,7 @@ void Parameters::save(const std::string& filename) {
 template <class T>
 void Parameters::get(const std::string& key, T& value) {
   std::map<std::string, std::string>::iterator iter = parameters.find(key);
-  if(iter != parameters.end()) { // key exists
+  if (iter != parameters.end()) { // key exists
     ss << iter->second;    // send string value into stream
     ss >> value;           // read out value into proper type
     
@@ -205,7 +211,7 @@ void Parameters::set(const std::string& key, const T& value) {
 void Parameters::print(std::ostream& os) {
   os << "*** Parameters ***\n";
   std::map<std::string, std::string>::const_iterator map_iter;
-  for(map_iter=parameters.begin(); map_iter!=parameters.end(); map_iter++) {
+  for (map_iter=parameters.begin(); map_iter!=parameters.end(); map_iter++) {
     os << map_iter->first << ": " << map_iter->second << "\n";
   }
   std::cout << "\n";
@@ -218,13 +224,13 @@ std::map<std::string, std::string> Parameters::getSectionMap(const std::string& 
   std::map<std::string, std::string> sectionMap;
   std::map<std::string, std::string>::const_iterator iter;
   std::string fullPathKey, value, section, key;
-  for(iter=parameters.begin(); iter!=parameters.end(); ++iter) {
+  for (iter=parameters.begin(); iter!=parameters.end(); ++iter) {
     fullPathKey = iter->first;
     value = iter->second;
     int i = fullPathKey.find("/");
     section = fullPathKey.substr(0, i);
     key = fullPathKey.substr(i+1);
-    if(section == sectionName) {
+    if (section == sectionName) {
       sectionMap[key] = value;
     }
   }
@@ -239,7 +245,7 @@ std::string Parameters::trimWhitespace(const std::string& str) {
   int last = str.find_last_not_of(" ");
   
   // check if we found anything other than spaces
-  if(first >= 0 && last >= 0) {
+  if (first >= 0 && last >= 0) {
     return str.substr(first, last-first+1);
   }
   else { // string only contains spaces
