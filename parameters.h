@@ -48,10 +48,11 @@ public:
   void load(const std::string& filename);  // add these parameters to current ones
   void save(const std::string& filename);  // save current parameters to a file
   
-  // get and set the value of a key
+  // get the value of a key
   template <class T>
   void get(const std::string& key, T& value);
 
+  // set a key to a new value
   template <class T>
   void set(const std::string& key, const T& value);
 
@@ -61,7 +62,7 @@ public:
   // get all the entries within a section
   std::map<std::string, std::string> getSectionMap(const std::string& sectionName);
 
-  // iterator
+  // iterator over all key-value pairs
   class iterator {
   public:
     iterator(std::map<std::string, std::string>::iterator it)
@@ -126,23 +127,29 @@ void Parameters::load(const std::string& filename) {
 
   // iterate through text and build the dictionary
   std::string sectionName, key, value, fullPathKey;
-  std::vector<std::string>::const_iterator text_iter;
-  for (text_iter=text.begin(); text_iter!=text.end(); text_iter++) {
-    line = *text_iter; // current line of text
+  std::vector<std::string>::const_iterator it;
+  for (it = text.begin(); it != text.end(); ++it) {
+    line = *it;
     // check if line is a section header
     if (*line.begin() == '[' && *line.rbegin() == ']') {
       sectionName = trimWhitespace(line.substr(1, line.length()-2));
     }
     else { // line might contain: key = value
-      int i = line.find("=");
-      if (i == -1) // failed to find '='
-	throw ParametersFileError("Under section '"+sectionName+"', malformed expression line: '"+line+"'\n");
+      std::size_t found = line.find("=");
+      if (found == std::string::npos) {
+	std::string msg("Under section '" + sectionName + "', malformed expression line: '" + line + "'\n");
+	throw ParametersFileError(msg);
+      }
 
       // split expression by '=' into key and value
-      key = trimWhitespace(line.substr(0, i));
-      value = trimWhitespace(line.substr(i+1));
-      if (!key.length() > 0 || !value.length() > 0) // if key or value contains only whitespace
-	throw ParametersFileError("Under section '"+sectionName+"', missing key or value: '"+key+"="+value+"'\n");
+      key = trimWhitespace(line.substr(0, found));
+      value = trimWhitespace(line.substr(found+1));
+
+      // if missing key or value
+      if (!key.length() > 0 || !value.length() > 0) {
+	std::string msg("Under section '" + sectionName + "', missing key or value: '" + key + "=" + value + "'\n");
+	throw ParametersFileError(msg);
+      }
 
       // store keys as 'section/key'
       fullPathKey = sectionName + "/" + key;
@@ -189,7 +196,6 @@ void Parameters::get(const std::string& key, T& value) {
   if (iter != parameters.end()) { // key exists
     ss << iter->second;    // send string value into stream
     ss >> value;           // read out value into proper type
-    
     ss.str(std::string()); // set contents to an empty string
     ss.clear();            // clear any errors (most likely eof)
   }
@@ -200,7 +206,6 @@ template <class T>
 void Parameters::set(const std::string& key, const T& value) {
   ss << value;                // read in value
   parameters[key] = ss.str(); // save string value for key
-
   ss.str(std::string());      // set contents to an empty string
   ss.clear();                 // clear any errors (most likely eof)
 }
@@ -210,9 +215,8 @@ void Parameters::set(const std::string& key, const T& value) {
 // print out all of the key/value pairs of parameters
 void Parameters::print(std::ostream& os) {
   os << "*** Parameters ***\n";
-  std::map<std::string, std::string>::const_iterator map_iter;
-  for (map_iter=parameters.begin(); map_iter!=parameters.end(); map_iter++) {
-    os << map_iter->first << ": " << map_iter->second << "\n";
+  for (iterator it = begin(); it != end(); ++it) {
+    os << it->first << ": " << it->second << "\n";
   }
   std::cout << "\n";
 }
@@ -222,11 +226,11 @@ void Parameters::print(std::ostream& os) {
 std::map<std::string, std::string> Parameters::getSectionMap(const std::string& sectionName) {
   // iterate through the parameters map and find all entries with matching section name
   std::map<std::string, std::string> sectionMap;
-  std::map<std::string, std::string>::const_iterator iter;
+  std::map<std::string, std::string>::const_iterator it;
   std::string fullPathKey, value, section, key;
-  for (iter=parameters.begin(); iter!=parameters.end(); ++iter) {
-    fullPathKey = iter->first;
-    value = iter->second;
+  for (it = parameters.begin(); it != parameters.end(); ++it) {
+    fullPathKey = it->first;
+    value = it->second;
     int i = fullPathKey.find("/");
     section = fullPathKey.substr(0, i);
     key = fullPathKey.substr(i+1);
