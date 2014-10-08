@@ -110,9 +110,12 @@ void Parameters::load(const std::string& filename) {
   std::vector<std::string> text;
   while(!ifs.eof()) {
     getline(ifs, line);
-    // ignore comment or blank lines
-    if(line.length() > 0 && line[0] != '#') 
-      text.push_back(trimWhitespace(line));
+
+    // remove comments
+    std::size_t found = line.find('#');
+    if (found != std::string::npos) line = line.substr(0, found);
+    line = trimWhitespace(line);
+    if(line.length() > 0) text.push_back(line);
   }
 
   // iterate through text and build the dictionary
