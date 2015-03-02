@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
   if (argc < 2) throw std::runtime_error("Please provide an input filename\n");
 
   // read parameters
-  Parameters params(argv[1]);
+  Parameters::Parameters params(argv[1]);
   
   // print parameters to console
   params.print(std::cout);

@@ -26,6 +26,8 @@ along with This program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <iostream>
 
+namespace Parameters {
+
 // general exception
 struct ParametersFileError : std::runtime_error {
   ParametersFileError(const std::string& message)
@@ -257,6 +259,6 @@ std::string Parameters::trimWhitespace(const std::string& str) {
   }
 }
 
-
+} // end namespace Parameters
 
 #endif // PARAMETERS_H_
