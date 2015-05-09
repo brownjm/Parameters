@@ -17,12 +17,13 @@ along with This program. If not, see <http://www.gnu.org/licenses/>.
 
 The Parameters class provides a simple way to manage input files
 commonly used in simulations. Parameter files contain key=value pairs
-that can be grouped under sections, denoted by square braces
-[section]. An example input file would contain:
+that can be grouped under sections, denoted by square braces:
+[section]. Comments are also allowed. Any text after a hash symbol #
+is ignored. An example input file would contain:
 
 # this is a comment
 [time]
-N = 1024
+N = 1024  # another comment
 dt = 0.1
 
 [space]
@@ -34,7 +35,7 @@ filename = mydata.dat
 
 
 These pairs will be stored in a map with each section name prepended
-to the keys listed below it. The file above is stored as:
+to the keys. The above input file would be stored in a std::map as:
 
 time/N   : 1024
 time/dt  : 0.1
@@ -45,7 +46,7 @@ output/filename : mydata.dat
 
 To read an input file, create a parameters object:
 
-  Parameters params(filename);
+  Parameters::Parameters params(filename);
 
 
 To use a value associated with a particular key, first create a
@@ -56,5 +57,7 @@ variable in your program and then call the get member function:
 
 
 Parameters uses templates and stringstreams in order to decipher the
-type. In order to use Parameters in your program, just include the
-header file: parameters.h
+type. You can also get a Parameters object of a particular section
+using:
+
+  Parameters::Parameters p = params.getSection("space")

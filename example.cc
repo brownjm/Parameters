@@ -5,6 +5,7 @@
 
 
 int main(int argc, char* argv[]) {
+try {
   if (argc < 2) throw std::runtime_error("Please provide an input filename\n");
 
   // read parameters
@@ -24,8 +25,16 @@ int main(int argc, char* argv[]) {
   std::cout << "Value for dt has been updated\n";
   params.print(std::cout);
 
+  // get a section
+  Parameters::Parameters p = params.getSection("space");
+  p.print(std::cout);
+
   std::string input_filename;
   params.get("output/newinput", input_filename);
   params.save(input_filename);
   std::cout << "New parameters saved to " << input_filename << "\n";
+ }
+ catch (std::runtime_error& err) {
+   std::cerr << err.what();
+ }
 }

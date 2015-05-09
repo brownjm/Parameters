@@ -44,6 +44,7 @@ struct KeyError : std::runtime_error {
 class Parameters {
 public:
   Parameters();
+  Parameters(const Parameters& p);
   Parameters(const std::string& filename); // loads file upon instantiation
   virtual ~Parameters();
 
@@ -62,6 +63,7 @@ public:
   void print(std::ostream& os);
 
   // get all the entries within a section
+  Parameters getSection(const std::string& sectionName);
   std::map<std::string, std::string> getSectionMap(const std::string& sectionName);
 
   // iterator over all key-value pairs
@@ -97,6 +99,12 @@ private:
 
 Parameters::Parameters() {}
 
+Parameters::Parameters(const Parameters& p)
+  :parameters(p.parameters), ss(p.ss.str()) {
+
+}
+
+  
 Parameters::Parameters(const std::string& filename) {
   load(filename);
 }
@@ -224,6 +232,25 @@ void Parameters::print(std::ostream& os) {
 }
 
 
+// get a map of the entries within a section
+Parameters Parameters::getSection(const std::string& sectionName) {
+  // iterate through the parameters map and find all entries with matching section name
+  Parameters p;
+  std::map<std::string, std::string>::const_iterator it;
+  std::string fullPathKey, value, section, key;
+  for (it = parameters.begin(); it != parameters.end(); ++it) {
+    fullPathKey = it->first;
+    value = it->second;
+    int i = fullPathKey.find("/");
+    section = fullPathKey.substr(0, i);
+    key = fullPathKey.substr(i+1);
+    if (section == sectionName) {
+      p.set(key, value);
+    }
+  }
+  return p;
+}
+  
 // get a map of the entries within a section
 std::map<std::string, std::string> Parameters::getSectionMap(const std::string& sectionName) {
   // iterate through the parameters map and find all entries with matching section name
