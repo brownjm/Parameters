@@ -79,7 +79,7 @@ void Parameters::load(const std::string& filename) {
       value = trimWhitespace(line.substr(found+1));
 
       // if missing key or value
-      if (!key.length() > 0 || !value.length() > 0) {
+      if (key.length() == 0 || value.length() == 0) {
 	std::string msg("Under section '" + sectionName + "', missing key or value: '" + key + "=" + value + "'\n");
 	throw ParametersFileError(msg);
       }
