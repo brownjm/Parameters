@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015 Jeffrey M Brown
+Copyright (C) 2018 Jeffrey M Brown
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -133,7 +133,7 @@ void Parameters::print(std::ostream& os) {
   for (iterator it = begin(); it != end(); ++it) {
     os << it->first << ": " << it->second << "\n";
   }
-  std::cout << "\n";
+  os << "\n";
 }
 
 
